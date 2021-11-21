@@ -86,7 +86,7 @@ def calculateAngle(lunation, _current_servo_degrees):
     else:
         angle_pct = (lunation - 0.5) / 0.5
     
-    shield_angle_degrees = int(maxServoAngle + (angle_pct * servoRange))
+    shield_angle_degrees = int(minServoAngle + (angle_pct * servoRange))
     servo_angle_degrees = 90 - (shield_angle_degrees - 90)
 
     #servoPos = minServoPos + (lunation * maxAngleOfShield)
@@ -106,8 +106,8 @@ def startupProcedure(_servo, _rtc):
     global current_servo_degrees
 
     # 1) Reset shield to start position
-    print("1. Tracking to centre position:", 90, "degrees")
-    _servo.trackToCentre()
+    print("1. Tracking to centre position ..")
+    _servo.setAngle(90)
 
     # 2) Read lunation & update position
     print("2. Getting moon phase & updating position ..")
@@ -157,14 +157,21 @@ def wakeSleepCycle(_servo, _rtc):
 # INIT RTC
 rtc_pico = RTC() 
 setTime(rtc_pico) # Uncomment this line when uploading main.py
-#rtc_pico.datetime((2021, 11, 19, 1, 23, 59, 50, 0)) # hard-coded datetime used for testing
-
-# STARTUP
+rtc_pico.datetime((2021, 11, 19, 1, 23, 59, 45, 0)) # hard-coded datetime used for testing
 servo = Servo()
-current_degrees = startupProcedure(servo, rtc_pico)
 
-# Initiate sleep & wake to update position
-while True:       
-    wakeSleepCycle(servo, rtc_pico)
+# A) STARTUP (Tracking Mode)
+# startupProcedure(servo, rtc_pico)
+# while True:       
+#     wakeSleepCycle(servo, rtc_pico)
 
 
+# B) Demo mode
+servo.setAngle(int(90))
+sleep(1)
+while True:           
+    servo.cycle()
+    print("repeat")
+
+# C) Calibration mode
+#servo.setAngle(int(70))
